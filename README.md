@@ -11,6 +11,8 @@ A simple bench press counter
 
 You can download builded app from the [Releases page](https://github.com/laptop-coder/push-through/releases).
 
+### Development
+
 Run app in the development mode:
 
 ```bash
