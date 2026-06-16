@@ -1,4 +1,4 @@
-package com.example.app
+package io.github.laptop_coder.push_through
 
 import io.flutter.embedding.android.FlutterActivity
 
