@@ -1,0 +1,87 @@
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+
+class DatabaseService {
+  static Database? _db;
+
+  static Future<Database> get database async {
+    if (_db != null) return _db!;
+    _db = await _initDB();
+    return _db!;
+  }
+
+  static Future<Database> _initDB() async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'database.sqlite3');
+
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: (db, version) async {
+        return db.execute('''
+            CREATE TABLE workouts (
+              id INTEGER PRIMARY KEY,
+              created_at VARCHAR(30) DEFAULT (datetime('now')),
+              updated_at VARCHAR(30) DEFAULT (datetime('now'))
+            );
+
+            CREATE TABLE sets (
+              id INTEGER PRIMARY KEY,
+              created_at VARCHAR(30) DEFAULT (datetime('now')),
+              updated_at VARCHAR(30) DEFAULT (datetime('now')),
+              workout_id INTEGER,
+              weight INTEGER NOT NULL,
+              repetitions INTEGER NOT NULL,
+              FOREIGN KEY (workout_id) REFERENCES workouts(id)
+            );
+
+            CREATE TRIGGER update_workout_timestamp
+            AFTER UPDATE ON workouts
+            FOR EACH ROW
+            BEGIN
+              UPDATE workouts
+              SET updated_at = CURRENT_TIMESTAMP
+              WHERE id = OLD.id;
+            END;
+
+            CREATE TRIGGER update_set_timestamp
+            AFTER UPDATE ON sets
+            FOR EACH ROW
+            BEGIN
+              UPDATE sets
+              SET updated_at = CURRENT_TIMESTAMP
+              WHERE id = OLD.id;
+            END;
+            ''');
+      },
+    );
+  }
+
+  static Future<int> insert(String table, Map<String, Object?> data) async {
+    final db = await database;
+    return await db.insert(
+      table,
+      data,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<List<Map<String, Object?>>> query(String table) async {
+    final db = await database;
+    return await db.query(table);
+  }
+
+  static Future<int> update(
+    String table,
+    Map<String, Object?> data,
+    int id,
+  ) async {
+    final db = await database;
+    return await db.update(table, data, where: 'id = ?', whereArgs: [id]);
+  }
+
+  static Future<int> delete(String table, int id) async {
+    final db = await database;
+    return await db.delete(table, where: 'id = ?', whereArgs: [id]);
+  }
+}
