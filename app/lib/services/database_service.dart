@@ -40,7 +40,7 @@ class DatabaseService {
             FOR EACH ROW
             BEGIN
               UPDATE workouts
-              SET updated_at = CURRENT_TIMESTAMP
+              SET updated_at = datetime('now')
               WHERE id = OLD.id;
             END;
 
@@ -49,7 +49,7 @@ class DatabaseService {
             FOR EACH ROW
             BEGIN
               UPDATE sets
-              SET updated_at = CURRENT_TIMESTAMP
+              SET updated_at = datetime('now')
               WHERE id = OLD.id;
             END;
             ''');
