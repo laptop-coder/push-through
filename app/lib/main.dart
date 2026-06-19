@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:push_through/widgets/app_scaffold.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 
