@@ -13,7 +13,10 @@ class WorkoutService {
             'created_at': createdAt as String,
             'updated_at': updatedAt as String,
           }
-          in await DatabaseService.query('workouts'))
+          in await DatabaseService.query(
+            'workouts',
+            orderBy: 'created_at DESC',
+          ))
         Workout(id: id, createdAt: createdAt, updatedAt: updatedAt),
     ];
   }

@@ -71,16 +71,15 @@ class DatabaseService {
     String table, {
     String? whereKey,
     String? whereValue,
+    String? orderBy,
   }) async {
     final db = await database;
-    if (whereKey?.isNotEmpty == true && whereValue?.isNotEmpty == true) {
-      return await db.query(
-        table,
-        where: '$whereKey = ?',
-        whereArgs: [whereValue],
-      );
-    }
-    return await db.query(table);
+    return await db.query(
+      table,
+      where: whereKey?.isNotEmpty == true ? '$whereKey = ?' : null,
+      whereArgs: whereValue?.isNotEmpty == true ? [whereValue] : null,
+      orderBy: orderBy?.isNotEmpty == true ? orderBy : null,
+    );
   }
 
   static Future<int> update(
