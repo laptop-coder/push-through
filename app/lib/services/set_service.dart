@@ -6,24 +6,21 @@ class SetService {
     await DatabaseService.insert('sets', set.toMap());
   }
 
-  static Future<List<Set>> read() async {
+  static Future<List<Set>> getAll(int workoutId) async {
+    final maps = await DatabaseService.query(
+      'sets',
+      whereKey: 'workout_id',
+      whereValue: workoutId.toString(),
+    );
     return [
-      for (final {
-            'id': id as int,
-            'created_at': createdAt as String,
-            'updated_at': updatedAt as String,
-            'workout_id': workoutId as int,
-            'weight': weight as int,
-            'repetitions': repetitions as int,
-          }
-          in await DatabaseService.query('sets'))
+      for (final map in maps)
         Set(
-          id: id,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
-          workoutId: workoutId,
-          weight: weight,
-          repetitions: repetitions,
+          id: map['id'] as int,
+          createdAt: map['createdAt'] as String,
+          updatedAt: map['updatedAt'] as String,
+          workoutId: map['workoutId'] as int,
+          weight: map['weight'] as int,
+          repetitions: map['repetitions'] as int,
         ),
     ];
   }

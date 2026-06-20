@@ -63,11 +63,23 @@ class DatabaseService {
       table,
       data,
       conflictAlgorithm: ConflictAlgorithm.replace,
+      nullColumnHack: 'id',
     );
   }
 
-  static Future<List<Map<String, Object?>>> query(String table) async {
+  static Future<List<Map<String, Object?>>> query(
+    String table, {
+    String? whereKey,
+    String? whereValue,
+  }) async {
     final db = await database;
+    if (whereKey?.isNotEmpty == true && whereValue?.isNotEmpty == true) {
+      return await db.query(
+        table,
+        where: '$whereKey = ?',
+        whereArgs: [whereValue],
+      );
+    }
     return await db.query(table);
   }
 
