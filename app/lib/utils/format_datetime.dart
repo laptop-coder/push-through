@@ -6,7 +6,7 @@ class FormatDatetime {
   }
 
   static String formatTime(String datetimeStr) {
-    return (DateFormat('hh:mm', 'ru')).format(DateTime.parse(datetimeStr));
+    return (DateFormat('HH:mm', 'ru')).format(DateTime.parse(datetimeStr));
   }
 
   static String formatDateAndTime(String datetimeStr) {
