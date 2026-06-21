@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.blueGrey)),
+      debugShowCheckedModeBanner: false,
       home: AppScaffold(),
       localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
