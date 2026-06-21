@@ -41,6 +41,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_slidable: ^4.0.3
+  dynamic_color: ^1.8.1
 
 dev_dependencies:
   flutter_test:
