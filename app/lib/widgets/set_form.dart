@@ -87,7 +87,7 @@ class _SetFormState extends State<SetForm> {
                   Expanded(
                     child: FilledButton(
                       onPressed: () {
-                        final weight = int.tryParse(_weightController.text);
+                        final weight = double.tryParse(_weightController.text);
                         final repetitions = int.tryParse(
                           _repetitionsController.text,
                         );
