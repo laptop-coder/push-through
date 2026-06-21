@@ -2,7 +2,11 @@ import 'package:push_through/services/database_service.dart';
 import 'package:push_through/models/set.dart';
 
 class SetService {
-  static Future<void> create(int workoutId, int weight, int repetitions) async {
+  static Future<void> create(
+    int workoutId,
+    double weight,
+    int repetitions,
+  ) async {
     await DatabaseService.insert('sets', {
       'workout_id': workoutId,
       'weight': weight,
@@ -23,7 +27,7 @@ class SetService {
           createdAt: map['created_at'] as String,
           updatedAt: map['updated_at'] as String,
           workoutId: map['workout_id'] as int,
-          weight: map['weight'] as int,
+          weight: map['weight'] as double,
           repetitions: map['repetitions'] as int,
         ),
     ];

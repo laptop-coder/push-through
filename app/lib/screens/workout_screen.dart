@@ -110,7 +110,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   createdAt: set.createdAt,
                   updatedAt: set.updatedAt,
                   workoutId: set.workoutId,
-                  weight: result['weight'] as int,
+                  weight: result['weight'] as double,
                   repetitions: result['repetitions'] as int,
                 ),
               );
@@ -198,7 +198,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           if (result != null) {
             await SetService.create(
               widget.workoutId,
-              result['weight'] as int,
+              result['weight'] as double,
               result['repetitions'] as int,
             );
             _loadSets();

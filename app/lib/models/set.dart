@@ -3,7 +3,7 @@ class Set {
   final String createdAt;
   final String updatedAt;
   final int workoutId;
-  final int weight;
+  final double weight;
   final int repetitions;
 
   Set({
