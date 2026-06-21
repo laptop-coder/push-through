@@ -18,13 +18,17 @@ class DatabaseService {
       path,
       version: 1,
       onCreate: (db, version) async {
-        return db.execute('''
+        await db.execute('PRAGMA foreign_keys = ON');
+
+        await db.execute('''
             CREATE TABLE workouts (
               id INTEGER PRIMARY KEY,
               created_at VARCHAR(30) DEFAULT (datetime('now')),
               updated_at VARCHAR(30) DEFAULT (datetime('now'))
             );
+            ''');
 
+        await db.execute('''
             CREATE TABLE sets (
               id INTEGER PRIMARY KEY,
               created_at VARCHAR(30) DEFAULT (datetime('now')),
@@ -32,9 +36,11 @@ class DatabaseService {
               workout_id INTEGER,
               weight INTEGER NOT NULL,
               repetitions INTEGER NOT NULL,
-              FOREIGN KEY (workout_id) REFERENCES workouts(id)
+              FOREIGN KEY (workout_id) REFERENCES workouts(id) ON DELETE CASCADE
             );
+            ''');
 
+        await db.execute('''
             CREATE TRIGGER update_workout_timestamp
             AFTER UPDATE ON workouts
             FOR EACH ROW
@@ -43,7 +49,9 @@ class DatabaseService {
               SET updated_at = datetime('now')
               WHERE id = OLD.id;
             END;
+            ''');
 
+        await db.execute('''
             CREATE TRIGGER update_set_timestamp
             AFTER UPDATE ON sets
             FOR EACH ROW
@@ -53,6 +61,9 @@ class DatabaseService {
               WHERE id = OLD.id;
             END;
             ''');
+      },
+      onOpen: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON');
       },
     );
   }
