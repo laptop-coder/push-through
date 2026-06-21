@@ -106,4 +106,15 @@ class DatabaseService {
     final db = await database;
     return await db.delete(table, where: 'id = ?', whereArgs: [id]);
   }
+
+  static Future<String> exportToCSV(String table) async {
+    final db = await database;
+    final maps = await db.query(table);
+    if (maps.isEmpty) return '';
+
+    final columns = maps.first.keys.join(',');
+    final rows = maps.map((map) => map.values.join(',')).join('\n');
+
+    return '$columns\n$rows';
+  }
 }
