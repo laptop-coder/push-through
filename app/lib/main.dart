@@ -29,6 +29,11 @@ class MyApp extends StatelessWidget {
             colorScheme:
                 lightDynamic ??
                 ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+            pageTransitionsTheme: PageTransitionsTheme(
+              builders: {
+                TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+              },
+            ),
           ),
           debugShowCheckedModeBanner: false,
           home: AppScaffold(),
