@@ -25,7 +25,7 @@ class DatabaseService {
               id INTEGER PRIMARY KEY,
               created_at VARCHAR(30) DEFAULT (datetime('now')),
               updated_at VARCHAR(30) DEFAULT (datetime('now')),
-              type_id INTEGER,
+              type_id INTEGER NOT NULL,
               FOREIGN KEY (type_id) REFERENCES workout_types(id) ON DELETE CASCADE
             );
             ''');
@@ -44,7 +44,7 @@ class DatabaseService {
               id INTEGER PRIMARY KEY,
               created_at VARCHAR(30) DEFAULT (datetime('now')),
               updated_at VARCHAR(30) DEFAULT (datetime('now')),
-              workout_id INTEGER,
+              workout_id INTEGER NOT NULL,
               weight REAL NOT NULL,
               repetitions INTEGER NOT NULL,
               FOREIGN KEY (workout_id) REFERENCES workouts(id) ON DELETE CASCADE
