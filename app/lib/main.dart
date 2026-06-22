@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
                 lightDynamic ??
                 ColorScheme.fromSeed(seedColor: Colors.blueGrey),
             pageTransitionsTheme: PageTransitionsTheme(
-              builders: {
+              builders: <TargetPlatform, PageTransitionsBuilder>{
                 TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
               },
             ),
