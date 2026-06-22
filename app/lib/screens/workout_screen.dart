@@ -146,6 +146,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     setState(() {
       _sets = sets;
+      _listKey = GlobalKey<AnimatedListState>();
       _loading = false;
     });
   }
