@@ -31,6 +31,12 @@ class _DataScreenState extends State<DataScreen> {
     final workoutsCSV = await DatabaseService.exportToCSV('workouts');
     await workoutsFile.writeAsString(workoutsCSV);
 
+    final workoutTypesFile = File(
+      '${dir.path}/${currentDateTimeFilenames}_workout_types.csv',
+    );
+    final workoutTypesCSV = await DatabaseService.exportToCSV('workout_types');
+    await workoutTypesFile.writeAsString(workoutTypesCSV);
+
     final setsFile = File('${dir.path}/${currentDateTimeFilenames}_sets.csv');
     final setsCSV = await DatabaseService.exportToCSV('sets');
     await setsFile.writeAsString(setsCSV);
@@ -39,7 +45,7 @@ class _DataScreenState extends State<DataScreen> {
       '${dir.path}/${currentDateTimeFilenames}_README.md',
     );
     final exportMessage =
-        'Экспорт от $currentDateTimeText\nПолные пути к файлам:\n1. ${workoutsFile.path}\n2. ${setsFile.path}';
+        'Экспорт от $currentDateTimeText\nПолные пути к файлам:\n1. ${workoutsFile.path}\n2. ${workoutTypesFile.path}\n3. ${setsFile.path}';
     await readmeFile.writeAsString(exportMessage);
 
     if (Platform.isLinux) {
@@ -53,7 +59,11 @@ class _DataScreenState extends State<DataScreen> {
       await SharePlus.instance.share(
         ShareParams(
           text: exportMessage,
-          files: [XFile(workoutsFile.path), XFile(setsFile.path)],
+          files: [
+            XFile(workoutsFile.path),
+            XFile(workoutTypesFile.path),
+            XFile(setsFile.path),
+          ],
         ),
       );
     }
