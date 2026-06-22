@@ -44,7 +44,7 @@ class _WorkoutTypeFormState extends State<WorkoutTypeForm> {
               autofocus: true,
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'Название вида тренировок',
+                labelText: 'Название упражнения',
                 border: OutlineInputBorder(),
               ),
             ),

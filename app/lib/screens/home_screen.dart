@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:push_through/models/workout.dart';
-import 'package:push_through/services/workout_service.dart';
-import 'package:push_through/screens/workout_screen.dart';
-import 'package:push_through/utils/format_datetime.dart';
+import 'package:push_through/models/workout_type.dart';
+import 'package:push_through/services/workout_type_service.dart';
+import 'package:push_through/screens/workout_type_screen.dart';
+import 'package:push_through/widgets/workout_type_form.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,12 +15,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _loading = true;
-  List<Workout> _workouts = [];
+  List<WorkoutType> _workoutTypes = [];
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
-  void _deleteWorkout(int index, Workout workout) async {
-    final removedWorkout = _workouts[index];
-    _workouts.removeAt(index);
+  void _deleteWorkoutType(int index, WorkoutType workoutType) async {
+    final removedWorkoutType = _workoutTypes[index];
+    _workoutTypes.removeAt(index);
     _listKey.currentState!.removeItem(
       index,
       (context, animation) => SlideTransition(
@@ -30,26 +30,26 @@ class _HomeScreenState extends State<HomeScreen> {
         ).animate(CurvedAnimation(parent: animation, curve: Curves.easeIn)),
         child: FadeTransition(
           opacity: animation,
-          child: _buildSlidableItem(removedWorkout, index),
+          child: _buildSlidableItem(removedWorkoutType, index),
         ),
       ),
       duration: Duration(milliseconds: 300),
     );
-    await WorkoutService.delete(workout.id);
-    if (_workouts.isEmpty) {
-      _loadWorkouts();
+    await WorkoutTypeService.delete(workoutType.id);
+    if (_workoutTypes.isEmpty) {
+      _loadWorkoutTypes();
     }
   }
 
-  Widget _buildSlidableItem(Workout workout, int index) {
+  Widget _buildSlidableItem(WorkoutType workoutType, int index) {
     final child = Slidable(
-      key: Key(workout.id.toString()),
+      key: Key(workoutType.id.toString()),
       endActionPane: ActionPane(
         motion: const StretchMotion(),
         extentRatio: 0.3,
         children: [
           SlidableAction(
-            onPressed: (context) => _deleteWorkout(index, workout),
+            onPressed: (context) => _deleteWorkoutType(index, workoutType),
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             icon: Icons.delete,
@@ -63,23 +63,19 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(index == 0 ? 12 : 2),
-          bottom: Radius.circular(index == _workouts.length - 1 ? 12 : 2),
+          bottom: Radius.circular(index == _workoutTypes.length - 1 ? 12 : 2),
         ),
         child: ListTile(
           visualDensity: VisualDensity(vertical: 2),
-          title: Text(FormatDatetime.formatDate(workout.createdAt)),
-          subtitle: Text(
-            FormatDatetime.formatDateRelativeToToday(
-              DateTime.parse(workout.createdAt.replaceAll(' ', 'T')),
-            ),
-          ),
+          title: Text(workoutType.name),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => WorkoutScreen(workoutId: workout.id),
+                builder: (_) =>
+                    WorkoutTypeScreen(workoutTypeId: workoutType.id),
               ),
-            ).then((_) => _loadWorkouts());
+            ).then((_) => _loadWorkoutTypes());
           },
         ),
       ),
@@ -91,24 +87,35 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadWorkouts();
+    _loadWorkoutTypes();
   }
 
-  Future<void> _loadWorkouts() async {
-    final workouts = await WorkoutService.getAll();
+  Future<void> _loadWorkoutTypes() async {
+    final workoutTypes = await WorkoutTypeService.getAll();
     setState(() {
-      _workouts = workouts;
+      _workoutTypes = workoutTypes;
       _listKey = GlobalKey<AnimatedListState>();
       _loading = false;
     });
   }
 
-  Future<void> _createWorkout() async {
-    final id = await WorkoutService.create();
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => WorkoutScreen(workoutId: id)),
-    ).then((_) => _loadWorkouts());
+  Future<void> _createWorkoutType() async {
+    final result = await showModalBottomSheet<Map<String, String>>(
+      context: context,
+      builder: (context) => WorkoutTypeForm(),
+    );
+    if (result != null &&
+        result['name'] != null &&
+        result['name']!.isNotEmpty) {
+      final id = await WorkoutTypeService.create(result['name']!);
+      await _loadWorkoutTypes();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WorkoutTypeScreen(workoutTypeId: id),
+        ),
+      ).then((_) => _loadWorkoutTypes());
+    }
   }
 
   @override
@@ -116,26 +123,26 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-        title: const Text('Дожми! Жим лёжа'),
+        title: const Text('Дожми! Тренировки'),
       ),
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       body: _loading
           ? Center(child: CircularProgressIndicator())
-          : _workouts.isEmpty
-          ? Center(child: Text('Нет тренировок'))
+          : _workoutTypes.isEmpty
+          ? Center(child: Text('Нет упражнений'))
           : Padding(
               padding: EdgeInsets.only(left: 12, right: 12, top: 12),
               child: AnimatedList(
                 key: _listKey,
-                initialItemCount: _workouts.length,
+                initialItemCount: _workoutTypes.length,
                 itemBuilder: (context, index, animation) {
-                  return _buildSlidableItem(_workouts[index], index);
+                  return _buildSlidableItem(_workoutTypes[index], index);
                 },
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _createWorkout,
-        tooltip: 'Новая тренировка',
+        onPressed: _createWorkoutType,
+        tooltip: 'Новое упражнение',
         child: const Icon(Icons.add),
       ),
     );
