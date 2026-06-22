@@ -99,7 +99,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             ),
           ),
           onTap: () async {
-            final result = await showModalBottomSheet<Map<String, int>>(
+            final result = await showModalBottomSheet<Map<String, num>>(
               context: context,
               builder: (context) => SetForm(set: set),
             );
@@ -146,6 +146,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     setState(() {
       _sets = sets;
+      _listKey = GlobalKey<AnimatedListState>();
       _loading = false;
     });
   }
@@ -191,7 +192,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final result = await showModalBottomSheet<Map<String, int>>(
+          final result = await showModalBottomSheet<Map<String, num>>(
             context: context,
             builder: (context) => SetForm(),
           );
