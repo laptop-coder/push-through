@@ -24,7 +24,18 @@ class DatabaseService {
             CREATE TABLE workouts (
               id INTEGER PRIMARY KEY,
               created_at VARCHAR(30) DEFAULT (datetime('now')),
-              updated_at VARCHAR(30) DEFAULT (datetime('now'))
+              updated_at VARCHAR(30) DEFAULT (datetime('now')),
+              type_id INTEGER,
+              FOREIGN KEY (type_id) REFERENCES workout_types(id) ON DELETE CASCADE
+            );
+            ''');
+
+        await db.execute('''
+            CREATE TABLE workout_types (
+              id INTEGER PRIMARY KEY,
+              created_at VARCHAR(30) DEFAULT (datetime('now')),
+              updated_at VARCHAR(30) DEFAULT (datetime('now')),
+              name VARCHAR(100) NOT NULL
             );
             ''');
 
@@ -46,6 +57,17 @@ class DatabaseService {
             FOR EACH ROW
             BEGIN
               UPDATE workouts
+              SET updated_at = datetime('now')
+              WHERE id = OLD.id;
+            END;
+            ''');
+
+        await db.execute('''
+            CREATE TRIGGER update_workout_type_timestamp
+            AFTER UPDATE ON workout_types
+            FOR EACH ROW
+            BEGIN
+              UPDATE workout_types
               SET updated_at = datetime('now')
               WHERE id = OLD.id;
             END;
