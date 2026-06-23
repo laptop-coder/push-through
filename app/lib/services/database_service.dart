@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'dart:io';
 
 class DatabaseService {
   static Database? _db;
@@ -129,7 +130,7 @@ class DatabaseService {
     return await db.delete(table, where: 'id = ?', whereArgs: [id]);
   }
 
-  static Future<String> exportToCSV(String table) async {
+  static Future<String> exportTableToCSV(String table) async {
     final db = await database;
     final maps = await db.query(table);
     if (maps.isEmpty) return '';
@@ -139,4 +140,21 @@ class DatabaseService {
 
     return '$columns\n$rows';
   }
+
+  static Future<void> importTableFromCSV(String table, File file) async{
+    final db = await database;
+    final lines = await file.readAsLines();
+    if (lines.length < 2) return;
+
+    final columns = lines[0].split(',');
+    for (var i = 1; i < lines.length; i++) {
+        final values = lines[i].split(',');
+        final map = <String, dynamic>{};
+        for (var j = 0; j < columns.length; j++) {
+            map[columns[j]] = values[j];
+          }
+          await db.insert(table, map, conflictAlgorithm: ConflictAlgorithm.ignore);
+      }
+    }
+
 }
