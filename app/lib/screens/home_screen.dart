@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:push_through/models/workout_type.dart';
-import 'package:push_through/services/workout_type_service.dart';
-import 'package:push_through/screens/workout_type_screen.dart';
-import 'package:push_through/widgets/workout_type_form.dart';
+import 'package:push_through/models/exercise.dart';
+import 'package:push_through/services/exercise_service.dart';
+import 'package:push_through/screens/exercise_screen.dart';
+import 'package:push_through/widgets/exercise_form.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:push_through/l10n/app_localizations.dart';
 
@@ -15,12 +15,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _loading = true;
-  List<WorkoutType> _workoutTypes = [];
+  List<Exercise> _exercises = [];
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
-  void _deleteWorkoutType(int index, WorkoutType workoutType) async {
-    final removedWorkoutType = _workoutTypes[index];
-    _workoutTypes.removeAt(index);
+  void _deleteExercise(int index, Exercise exercise) async {
+    final removedExercise = _exercises[index];
+    _exercises.removeAt(index);
     _listKey.currentState!.removeItem(
       index,
       (context, animation) => SlideTransition(
@@ -30,26 +30,26 @@ class _HomeScreenState extends State<HomeScreen> {
         ).animate(CurvedAnimation(parent: animation, curve: Curves.easeIn)),
         child: FadeTransition(
           opacity: animation,
-          child: _buildSlidableItem(removedWorkoutType, index),
+          child: _buildSlidableItem(removedExercise, index),
         ),
       ),
       duration: Duration(milliseconds: 300),
     );
-    await WorkoutTypeService.delete(workoutType.id);
-    if (_workoutTypes.isEmpty) {
-      _loadWorkoutTypes();
+    await ExerciseService.delete(exercise.id);
+    if (_exercises.isEmpty) {
+      _loadExercises();
     }
   }
 
-  Widget _buildSlidableItem(WorkoutType workoutType, int index) {
+  Widget _buildSlidableItem(Exercise exercise, int index) {
     final child = Slidable(
-      key: Key(workoutType.id.toString()),
+      key: Key(exercise.id.toString()),
       endActionPane: ActionPane(
         motion: const StretchMotion(),
         extentRatio: 0.3,
         children: [
           SlidableAction(
-            onPressed: (context) => _deleteWorkoutType(index, workoutType),
+            onPressed: (context) => _deleteExercise(index, exercise),
             backgroundColor: Colors.red,
             foregroundColor: Colors.white,
             icon: Icons.delete,
@@ -63,19 +63,19 @@ class _HomeScreenState extends State<HomeScreen> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(index == 0 ? 12 : 2),
-          bottom: Radius.circular(index == _workoutTypes.length - 1 ? 12 : 2),
+          bottom: Radius.circular(index == _exercises.length - 1 ? 12 : 2),
         ),
         child: ListTile(
           visualDensity: VisualDensity(vertical: 2),
-          title: Text(workoutType.name),
+          title: Text(exercise.name),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) =>
-                    WorkoutTypeScreen(workoutTypeId: workoutType.id),
+                    ExerciseScreen(exerciseId: exercise.id),
               ),
-            ).then((_) => _loadWorkoutTypes());
+            ).then((_) => _loadExercises());
           },
         ),
       ),
@@ -87,34 +87,34 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadWorkoutTypes();
+    _loadExercises();
   }
 
-  Future<void> _loadWorkoutTypes() async {
-    final workoutTypes = await WorkoutTypeService.getAll();
+  Future<void> _loadExercises() async {
+    final exercises = await ExerciseService.getAll();
     setState(() {
-      _workoutTypes = workoutTypes;
+      _exercises = exercises;
       _listKey = GlobalKey<AnimatedListState>();
       _loading = false;
     });
   }
 
-  Future<void> _createWorkoutType() async {
+  Future<void> _createExercise() async {
     final result = await showModalBottomSheet<Map<String, String>>(
       context: context,
-      builder: (context) => WorkoutTypeForm(),
+      builder: (context) => ExerciseForm(),
     );
     if (result != null &&
         result['name'] != null &&
         result['name']!.isNotEmpty) {
-      final id = await WorkoutTypeService.create(result['name']!);
-      await _loadWorkoutTypes();
+      final id = await ExerciseService.create(result['name']!);
+      await _loadExercises();
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => WorkoutTypeScreen(workoutTypeId: id),
+          builder: (context) => ExerciseScreen(exerciseId: id),
         ),
-      ).then((_) => _loadWorkoutTypes());
+      ).then((_) => _loadExercises());
     }
   }
 
@@ -128,20 +128,20 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       body: _loading
           ? Center(child: CircularProgressIndicator())
-          : _workoutTypes.isEmpty
+          : _exercises.isEmpty
           ? Center(child: Text(AppLocalizations.of(context)!.noExercises))
           : Padding(
               padding: EdgeInsets.only(left: 12, right: 12, top: 12),
               child: AnimatedList(
                 key: _listKey,
-                initialItemCount: _workoutTypes.length,
+                initialItemCount: _exercises.length,
                 itemBuilder: (context, index, animation) {
-                  return _buildSlidableItem(_workoutTypes[index], index);
+                  return _buildSlidableItem(_exercises[index], index);
                 },
               ),
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _createWorkoutType,
+        onPressed: _createExercise,
         tooltip: AppLocalizations.of(context)!.newExercise,
         child: const Icon(Icons.add),
       ),

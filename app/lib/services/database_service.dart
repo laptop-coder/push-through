@@ -26,13 +26,13 @@ class DatabaseService {
               id INTEGER PRIMARY KEY,
               created_at VARCHAR(30) DEFAULT (datetime('now')),
               updated_at VARCHAR(30) DEFAULT (datetime('now')),
-              type_id INTEGER NOT NULL,
-              FOREIGN KEY (type_id) REFERENCES workout_types(id) ON DELETE CASCADE
+              exercise_id INTEGER NOT NULL,
+              FOREIGN KEY (exercise_id) REFERENCES exercises(id) ON DELETE CASCADE
             );
             ''');
 
         await db.execute('''
-            CREATE TABLE workout_types (
+            CREATE TABLE exercises (
               id INTEGER PRIMARY KEY,
               created_at VARCHAR(30) DEFAULT (datetime('now')),
               updated_at VARCHAR(30) DEFAULT (datetime('now')),
@@ -64,11 +64,11 @@ class DatabaseService {
             ''');
 
         await db.execute('''
-            CREATE TRIGGER update_workout_type_timestamp
-            AFTER UPDATE ON workout_types
+            CREATE TRIGGER update_exercise_timestamp
+            AFTER UPDATE ON exercises
             FOR EACH ROW
             BEGIN
-              UPDATE workout_types
+              UPDATE exercises
               SET updated_at = datetime('now')
               WHERE id = OLD.id;
             END;
