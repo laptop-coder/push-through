@@ -5,10 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:archive/archive.dart';
 import 'dart:io';
+import 'package:push_through/l10n/app_localizations.dart';
 
 class DataScreen extends StatefulWidget {
-  const DataScreen({super.key, required this.title});
-  final String title;
+  const DataScreen({super.key});
 
   @override
   State<DataScreen> createState() => _DataScreenState();
@@ -38,7 +38,7 @@ class _DataScreenState extends State<DataScreen> {
     if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Экспортировано в $pathToZip')));
+      ).showSnackBar(SnackBar(content: Text('${AppLocalizations.of(context)!.exportedTo} $pathToZip')));
     }
   }
 
@@ -61,7 +61,7 @@ class _DataScreenState extends State<DataScreen> {
     if (mounted) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Успешно импортировано')));
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.importedSuccessfully)));
     }
   }
 
@@ -72,13 +72,13 @@ class _DataScreenState extends State<DataScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           FilledButton(
-            child: Text('Экспортировать в ZIP'),
+            child: Text('${AppLocalizations.of(context)!.exportTo} ZIP'),
             onPressed: () =>
                 _exportDBToZip(['workout_types', 'workouts', 'sets']),
           ),
           SizedBox(height: 10),
           FilledButton(
-            child: Text('Импортировать из ZIP'),
+            child: Text('${AppLocalizations.of(context)!.importFrom} ZIP'),
             onPressed: () async {
               final result = await FilePicker.pickFiles(
                 type: FileType.custom,

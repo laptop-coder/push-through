@@ -1,0 +1,25 @@
+{
+  "appTitleFull": "Push Through! Workouts",
+  "cancel": "Cancel",
+  "dataImportExport": "Data import/export",
+  "delete": "Delete",
+  "exerciseName": "Exercise name",
+  "exportTo": "Export to",
+  "exportedTo": "Exported to",
+  "importFrom": "Import from",
+  "importedSuccessfully": "Imported successfully",
+  "newExercise": "New exercise",
+  "newSet": "New set",
+  "newWorkout": "New workout",
+  "noExercises": "No exercises yet",
+  "noSets": "No sets yet",
+  "noWorkouts": "No workouts yet",
+  "repetition": "{count, plural, one{repetition} other{repetitions}}",
+  "repetitions": "Repetitions",
+  "save": "Save",
+  "set": "set",
+  "weight": "Weight",
+  "weightUnit": "lb",
+  "workouts": "Workouts"
+}
+

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:push_through/widgets/app_scaffold.dart';
 import 'dart:io';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'l10n/app_localizations.dart';
+import 'package:relative_time/relative_time.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) {
         return MaterialApp(
-          title: 'Flutter Demo',
+          title: 'Дожми!',
           theme: ThemeData(
             brightness: Brightness.light,
             colorScheme:
@@ -57,12 +58,10 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           home: AppScaffold(),
           localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
+            ...AppLocalizations.localizationsDelegates,
+            RelativeTimeLocalizations.delegate,
           ],
-          locale: Locale('ru'),
-          supportedLocales: [Locale('ru')],
+          supportedLocales: AppLocalizations.supportedLocales,
         );
       },
     );

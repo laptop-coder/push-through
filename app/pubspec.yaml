@@ -45,7 +45,8 @@ dependencies:
   path_provider: ^2.1.6
   archive: ^4.0.9
   file_picker: ^11.0.2
-
+  relative_time: ^5.0.0
+  quantify: ^0.20.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -63,6 +64,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

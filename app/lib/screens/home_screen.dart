@@ -4,10 +4,10 @@ import 'package:push_through/services/workout_type_service.dart';
 import 'package:push_through/screens/workout_type_screen.dart';
 import 'package:push_through/widgets/workout_type_form.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:push_through/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.title});
-  final String title;
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -123,13 +123,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-        title: const Text('Дожми! Тренировки'),
+        title: Text(AppLocalizations.of(context)!.appTitleFull),
       ),
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       body: _loading
           ? Center(child: CircularProgressIndicator())
           : _workoutTypes.isEmpty
-          ? Center(child: Text('Нет упражнений'))
+          ? Center(child: Text(AppLocalizations.of(context)!.noExercises))
           : Padding(
               padding: EdgeInsets.only(left: 12, right: 12, top: 12),
               child: AnimatedList(
@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createWorkoutType,
-        tooltip: 'Новое упражнение',
+        tooltip: AppLocalizations.of(context)!.newExercise,
         child: const Icon(Icons.add),
       ),
     );
