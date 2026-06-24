@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:push_through/services/database_service.dart';
 import 'package:intl/intl.dart';
-import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:archive/archive.dart';
+import 'dart:io';
 
 class DataScreen extends StatefulWidget {
   const DataScreen({super.key, required this.title});
@@ -14,67 +15,83 @@ class DataScreen extends StatefulWidget {
 }
 
 class _DataScreenState extends State<DataScreen> {
-  void _exportToCSV() async {
+  void _exportDBToZip(List<String> tables) async {
     final dir = await getApplicationDocumentsDirectory();
+    final encoder = ZipEncoder();
+    final archive = Archive();
+
+    for (final table in tables) {
+      final csv = await DatabaseService.exportTableToCSV(table);
+      archive.addFile(ArchiveFile('$table.csv', csv.length, csv.codeUnits));
+    }
 
     final currentDateTime = DateTime.now();
     final currentDateTimeFilenames = DateFormat(
       'yyyy-MM-dd-HH-mm',
     ).format(currentDateTime);
-    final currentDateTimeText = DateFormat(
-      'dd.MM.yyyy HH:mm',
-    ).format(currentDateTime);
+    final pathToZip =
+        '${dir.path}/${currentDateTimeFilenames}_export_push-through.zip';
+    final zipFile = File(pathToZip);
 
-    final workoutsFile = File(
-      '${dir.path}/${currentDateTimeFilenames}_workouts.csv',
-    );
-    final workoutsCSV = await DatabaseService.exportToCSV('workouts');
-    await workoutsFile.writeAsString(workoutsCSV);
+    await zipFile.writeAsBytes(encoder.encode(archive));
 
-    final workoutTypesFile = File(
-      '${dir.path}/${currentDateTimeFilenames}_workout_types.csv',
-    );
-    final workoutTypesCSV = await DatabaseService.exportToCSV('workout_types');
-    await workoutTypesFile.writeAsString(workoutTypesCSV);
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Экспортировано в $pathToZip')));
+    }
+  }
 
-    final setsFile = File('${dir.path}/${currentDateTimeFilenames}_sets.csv');
-    final setsCSV = await DatabaseService.exportToCSV('sets');
-    await setsFile.writeAsString(setsCSV);
+  void _importDBFromZip(File zipFile) async {
+    final tmpDir = Directory.systemTemp.createTempSync('push_through_import_');
+    final bytes = await zipFile.readAsBytes();
+    final archive = ZipDecoder().decodeBytes(bytes);
 
-    final readmeFile = File(
-      '${dir.path}/${currentDateTimeFilenames}_README.md',
-    );
-    final exportMessage =
-        'Экспорт от $currentDateTimeText\nПолные пути к файлам:\n1. ${workoutsFile.path}\n2. ${workoutTypesFile.path}\n3. ${setsFile.path}';
-    await readmeFile.writeAsString(exportMessage);
-
-    if (Platform.isLinux) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Сохранено в ${dir.path}')));
+    for (final table in ['workout_types', 'workouts', 'sets']) {
+      final file = archive.findFile('$table.csv');
+      if (file != null) {
+        final content = String.fromCharCodes(file.content);
+        final tmpFile = File('${tmpDir.path}/${file.name}');
+        await tmpFile.writeAsString(content);
+        await DatabaseService.importTableFromCSV(table, tmpFile);
+        await tmpFile.delete();
       }
-      Process.run('xdg-open', [dir.path]);
-    } else {
-      await SharePlus.instance.share(
-        ShareParams(
-          text: exportMessage,
-          files: [
-            XFile(workoutsFile.path),
-            XFile(workoutTypesFile.path),
-            XFile(setsFile.path),
-          ],
-        ),
-      );
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Успешно импортировано')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: FilledButton(
-        child: Text('Скачать в CSV'),
-        onPressed: () => _exportToCSV(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FilledButton(
+            child: Text('Экспортировать в ZIP'),
+            onPressed: () =>
+                _exportDBToZip(['workout_types', 'workouts', 'sets']),
+          ),
+          SizedBox(height: 10),
+          FilledButton(
+            child: Text('Импортировать из ZIP'),
+            onPressed: () async {
+              final result = await FilePicker.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: ['zip'],
+              );
+
+              if (result != null && result.files.single.path != null) {
+                final file = File(result.files.single.path!);
+                _importDBFromZip(file);
+              }
+            },
+          ),
+        ],
       ),
     );
   }
