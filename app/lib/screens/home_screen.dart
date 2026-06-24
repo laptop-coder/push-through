@@ -50,8 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           SlidableAction(
             onPressed: (context) => _deleteExercise(index, exercise),
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            foregroundColor: Theme.of(context).colorScheme.onError,
             icon: Icons.delete,
             label: 'Удалить',
             borderRadius: BorderRadius.circular(32),
