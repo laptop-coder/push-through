@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) {
         return MaterialApp(
-          title: 'Flutter Demo',
+          title: 'Дожми!',
           theme: ThemeData(
             brightness: Brightness.light,
             colorScheme:
