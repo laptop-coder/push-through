@@ -59,8 +59,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         children: [
           SlidableAction(
             onPressed: (context) => _deleteSet(index, set),
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            foregroundColor: Theme.of(context).colorScheme.onError,
             icon: Icons.delete,
             label: 'Удалить',
             borderRadius: BorderRadius.circular(32),
@@ -78,21 +78,35 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           visualDensity: VisualDensity(vertical: 2),
           title: RichText(
             text: TextSpan(
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
               children: [
                 TextSpan(
                   text: '${index + 1}',
-                  style: TextStyle(fontSize: 18, color: Colors.black),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
                 TextSpan(text: ' подход: '),
                 TextSpan(
                   text: '${set.weight}',
-                  style: TextStyle(fontSize: 18, color: Colors.black),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
                 TextSpan(text: ' кг '),
                 TextSpan(
                   text: '${set.repetitions}',
-                  style: TextStyle(fontSize: 18, color: Colors.black),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
                 TextSpan(text: ' ${_getRepetitionWordCase(set.repetitions)}'),
               ],
