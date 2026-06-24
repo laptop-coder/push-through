@@ -53,8 +53,8 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
         children: [
           SlidableAction(
             onPressed: (context) => _deleteWorkout(index, workout),
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            foregroundColor: Theme.of(context).colorScheme.onError,
             icon: Icons.delete,
             label: 'Удалить',
             borderRadius: BorderRadius.circular(32),

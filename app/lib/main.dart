@@ -26,15 +26,34 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'Flutter Demo',
           theme: ThemeData(
+            brightness: Brightness.light,
             colorScheme:
                 lightDynamic ??
-                ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+                ColorScheme.fromSeed(
+                  seedColor: Colors.blueGrey,
+                  brightness: Brightness.light,
+                ),
             pageTransitionsTheme: PageTransitionsTheme(
               builders: <TargetPlatform, PageTransitionsBuilder>{
                 TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
               },
             ),
           ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            colorScheme:
+                darkDynamic ??
+                ColorScheme.fromSeed(
+                  seedColor: Colors.blueGrey,
+                  brightness: Brightness.dark,
+                ),
+            pageTransitionsTheme: PageTransitionsTheme(
+              builders: <TargetPlatform, PageTransitionsBuilder>{
+                TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+              },
+            ),
+          ),
+          themeMode: ThemeMode.system,
           debugShowCheckedModeBanner: false,
           home: AppScaffold(),
           localizationsDelegates: [
