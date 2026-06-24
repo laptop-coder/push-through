@@ -47,7 +47,7 @@ class _DataScreenState extends State<DataScreen> {
     final bytes = await zipFile.readAsBytes();
     final archive = ZipDecoder().decodeBytes(bytes);
 
-    for (final table in ['workout_types', 'workouts', 'sets']) {
+    for (final table in ['exercises', 'workouts', 'sets']) {
       final file = archive.findFile('$table.csv');
       if (file != null) {
         final content = String.fromCharCodes(file.content);
@@ -74,7 +74,7 @@ class _DataScreenState extends State<DataScreen> {
           FilledButton(
             child: Text('${AppLocalizations.of(context)!.exportTo} ZIP'),
             onPressed: () =>
-                _exportDBToZip(['workout_types', 'workouts', 'sets']),
+                _exportDBToZip(['exercises', 'workouts', 'sets']),
           ),
           SizedBox(height: 10),
           FilledButton(

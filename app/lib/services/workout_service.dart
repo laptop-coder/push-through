@@ -2,29 +2,29 @@ import 'package:push_through/services/database_service.dart';
 import 'package:push_through/models/workout.dart';
 
 class WorkoutService {
-  static Future<int> create(int workoutTypeId) async {
-    return await DatabaseService.insert('workouts', {'type_id': workoutTypeId});
+  static Future<int> create(int exerciseId) async {
+    return await DatabaseService.insert('workouts', {'exercise_id': exerciseId});
   }
 
-  static Future<List<Workout>> getAll(int workoutTypeId) async {
+  static Future<List<Workout>> getAll(int exerciseId) async {
     return [
       for (final {
             'id': id as int,
             'created_at': createdAt as String,
             'updated_at': updatedAt as String,
-            'type_id': typeId as int,
+            'exercise_id': exerciseId as int,
           }
           in await DatabaseService.query(
             'workouts',
             orderBy: 'created_at DESC',
-            whereKey: 'type_id',
-            whereValue: workoutTypeId.toString(),
+            whereKey: 'exercise_id',
+            whereValue: exerciseId.toString(),
           ))
         Workout(
           id: id,
           createdAt: createdAt,
           updatedAt: updatedAt,
-          typeId: typeId,
+          exerciseId: exerciseId,
         ),
     ];
   }
@@ -39,7 +39,7 @@ class WorkoutService {
       id: workout[0]['id'] as int,
       createdAt: workout[0]['created_at'] as String,
       updatedAt: workout[0]['updated_at'] as String,
-      typeId: workout[0]['type_id'] as int,
+      exerciseId: workout[0]['exercise_id'] as int,
     );
   }
 

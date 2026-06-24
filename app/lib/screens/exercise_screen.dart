@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:push_through/models/workout.dart';
-import 'package:push_through/models/workout_type.dart';
+import 'package:push_through/models/exercise.dart';
 import 'package:push_through/services/workout_service.dart';
-import 'package:push_through/services/workout_type_service.dart';
+import 'package:push_through/services/exercise_service.dart';
 import 'package:push_through/screens/workout_screen.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:push_through/l10n/app_localizations.dart';
 import 'package:relative_time/relative_time.dart';
 import 'package:intl/intl.dart';
 
-class WorkoutTypeScreen extends StatefulWidget {
-  const WorkoutTypeScreen({super.key, required this.workoutTypeId});
-  final int workoutTypeId;
+class ExerciseScreen extends StatefulWidget {
+  const ExerciseScreen({super.key, required this.exerciseId});
+  final int exerciseId;
 
   @override
-  State<WorkoutTypeScreen> createState() => _WorkoutTypeScreenState();
+  State<ExerciseScreen> createState() => _ExerciseScreenState();
 }
 
-class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
+class _ExerciseScreenState extends State<ExerciseScreen> {
   bool _loading = true;
   List<Workout> _workouts = [];
-  WorkoutType? _workoutType;
+  Exercise? _exercise;
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   late Locale _locale;
 
@@ -109,12 +109,12 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
     setState(() => _loading = true);
 
     final results = await Future.wait([
-      WorkoutTypeService.getById(widget.workoutTypeId),
-      WorkoutService.getAll(widget.workoutTypeId),
+      ExerciseService.getById(widget.exerciseId),
+      WorkoutService.getAll(widget.exerciseId),
     ]);
 
     setState(() {
-      _workoutType = results[0] as WorkoutType?;
+      _exercise = results[0] as Exercise?;
       _workouts = results[1] as List<Workout>;
       _loading = false;
     });
@@ -123,7 +123,7 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
   Future<void> _loadWorkouts() async {
     setState(() => _loading = true);
 
-    final workouts = await WorkoutService.getAll(widget.workoutTypeId);
+    final workouts = await WorkoutService.getAll(widget.exerciseId);
 
     setState(() {
       _workouts = workouts;
@@ -133,7 +133,7 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
   }
 
   Future<void> _createWorkout() async {
-    final id = await WorkoutService.create(widget.workoutTypeId);
+    final id = await WorkoutService.create(widget.exerciseId);
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => WorkoutScreen(workoutId: id)),
@@ -145,7 +145,7 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-        title: Text(_workoutType != null ? _workoutType!.name : ''),
+        title: Text(_exercise != null ? _exercise!.name : ''),
       ),
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       body: _loading

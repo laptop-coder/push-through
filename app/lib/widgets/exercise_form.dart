@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:push_through/models/workout_type.dart';
+import 'package:push_through/models/exercise.dart';
 import 'package:push_through/l10n/app_localizations.dart';
 
-class WorkoutTypeForm extends StatefulWidget {
-  final WorkoutType? workoutType;
-  const WorkoutTypeForm({super.key, this.workoutType});
+class ExerciseForm extends StatefulWidget {
+  final Exercise? exercise;
+  const ExerciseForm({super.key, this.exercise});
 
   @override
-  State<WorkoutTypeForm> createState() => _WorkoutTypeFormState();
+  State<ExerciseForm> createState() => _ExerciseFormState();
 }
 
-class _WorkoutTypeFormState extends State<WorkoutTypeForm> {
+class _ExerciseFormState extends State<ExerciseForm> {
   late TextEditingController _nameController;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController();
-    if (widget.workoutType != null) {
-      _nameController.text = widget.workoutType!.name.toString();
+    if (widget.exercise != null) {
+      _nameController.text = widget.exercise!.name.toString();
     }
   }
 
