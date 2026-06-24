@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:push_through/models/workout_type.dart';
+import 'package:push_through/l10n/app_localizations.dart';
 
 class WorkoutTypeForm extends StatefulWidget {
   final WorkoutType? workoutType;
@@ -44,7 +45,7 @@ class _WorkoutTypeFormState extends State<WorkoutTypeForm> {
               autofocus: true,
               controller: _nameController,
               decoration: InputDecoration(
-                labelText: 'Название упражнения',
+                labelText: AppLocalizations.of(context)!.exerciseName,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -58,7 +59,7 @@ class _WorkoutTypeFormState extends State<WorkoutTypeForm> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: Text('Отмена'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                   ),
                   SizedBox(width: 16),
@@ -70,7 +71,7 @@ class _WorkoutTypeFormState extends State<WorkoutTypeForm> {
                           Navigator.pop(context, {'name': name});
                         }
                       },
-                      child: Text('Сохранить'),
+                      child: Text(AppLocalizations.of(context)!.save),
                     ),
                   ),
                 ],

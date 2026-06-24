@@ -3,9 +3,10 @@ import 'package:push_through/services/workout_service.dart';
 import 'package:push_through/models/set.dart';
 import 'package:push_through/models/workout.dart';
 import 'package:push_through/services/set_service.dart';
-import 'package:push_through/utils/format_datetime.dart';
 import 'package:push_through/widgets/set_form.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:push_through/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 class WorkoutScreen extends StatefulWidget {
   const WorkoutScreen({super.key, required this.workoutId});
@@ -20,14 +21,16 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   List<Set> _sets = [];
   Workout? _workout;
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  late Locale _locale;
 
   @override
-  void initState() {
-    super.initState();
-    _loadData();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _locale = Localizations.localeOf(context);
+    _loadData(_locale);
   }
 
-  void _deleteSet(int index, Set set) async {
+  void _deleteSet(int index, Set set, Locale locale) async {
     final removedSet = _sets[index];
     _sets.removeAt(index);
     _listKey.currentState!.removeItem(
@@ -39,18 +42,18 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         ).animate(CurvedAnimation(parent: animation, curve: Curves.easeIn)),
         child: FadeTransition(
           opacity: animation,
-          child: _buildSlidableItem(removedSet, index),
+          child: _buildSlidableItem(removedSet, index, locale),
         ),
       ),
       duration: Duration(milliseconds: 300),
     );
     await SetService.delete(set.id);
     if (_sets.isEmpty) {
-      _loadSets();
+      _loadSets(locale);
     }
   }
 
-  Widget _buildSlidableItem(Set set, int index) {
+  Widget _buildSlidableItem(Set set, int index, Locale locale) {
     final child = Slidable(
       key: Key(set.id.toString()),
       endActionPane: ActionPane(
@@ -58,11 +61,11 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         extentRatio: 0.3,
         children: [
           SlidableAction(
-            onPressed: (context) => _deleteSet(index, set),
+            onPressed: (context) => _deleteSet(index, set, locale),
             backgroundColor: Theme.of(context).colorScheme.error,
             foregroundColor: Theme.of(context).colorScheme.onError,
             icon: Icons.delete,
-            label: 'Удалить',
+            label: AppLocalizations.of(context)!.delete,
             borderRadius: BorderRadius.circular(32),
           ),
         ],
@@ -92,7 +95,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                TextSpan(text: ' подход: '),
+                TextSpan(text: ' ${AppLocalizations.of(context)!.set}: '),
                 TextSpan(
                   text: '${set.weight}',
                   style: TextStyle(
@@ -100,7 +103,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                TextSpan(text: ' кг '),
+                TextSpan(text: ' ${AppLocalizations.of(context)!.weightUnit} '),
                 TextSpan(
                   text: '${set.repetitions}',
                   style: TextStyle(
@@ -108,7 +111,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                TextSpan(text: ' ${_getRepetitionWordCase(set.repetitions)}'),
+                TextSpan(
+                  text:
+                      ' ${AppLocalizations.of(context)!.repetition(set.repetitions)}',
+                ),
               ],
             ),
           ),
@@ -127,8 +133,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   weight: result['weight'] as double,
                   repetitions: result['repetitions'] as int,
                 ),
+                locale,
               );
-              await _loadSets();
+              await _loadSets(locale);
             }
           },
         ),
@@ -138,12 +145,12 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     return Padding(padding: EdgeInsets.only(bottom: 4), child: child);
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadData(Locale locale) async {
     setState(() => _loading = true);
 
     final results = await Future.wait([
       WorkoutService.getById(widget.workoutId),
-      SetService.getAll(widget.workoutId),
+      SetService.getAll(widget.workoutId, locale),
     ]);
 
     setState(() {
@@ -153,30 +160,16 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     });
   }
 
-  Future<void> _loadSets() async {
+  Future<void> _loadSets(Locale locale) async {
     setState(() => _loading = true);
 
-    final sets = await SetService.getAll(widget.workoutId);
+    final sets = await SetService.getAll(widget.workoutId, locale);
 
     setState(() {
       _sets = sets;
       _listKey = GlobalKey<AnimatedListState>();
       _loading = false;
     });
-  }
-
-  String _getRepetitionWordCase(int repetitionsCount) {
-    if (repetitionsCount % 100 >= 11 && repetitionsCount % 100 <= 19) {
-      return 'повторений';
-    }
-    switch (repetitionsCount % 10) {
-      case 1:
-        return 'повторение';
-      case 2 || 3 || 4:
-        return 'повторения';
-      default:
-        return 'повторений';
-    }
   }
 
   @override
@@ -186,21 +179,23 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       appBar: AppBar(
         title: Text(
           _workout != null
-              ? FormatDatetime.formatDate(_workout!.createdAt)
+              ? DateFormat.yMd(
+                  _locale.languageCode,
+                ).format(DateTime.parse(_workout!.createdAt))
               : '',
         ),
       ),
       body: _loading
           ? Center(child: CircularProgressIndicator())
           : _sets.isEmpty
-          ? Center(child: Text('Нет подходов'))
+          ? Center(child: Text(AppLocalizations.of(context)!.noSets))
           : Padding(
               padding: EdgeInsets.only(left: 12, right: 12, top: 12),
               child: AnimatedList(
                 key: _listKey,
                 initialItemCount: _sets.length,
                 itemBuilder: (context, index, animation) {
-                  return _buildSlidableItem(_sets[index], index);
+                  return _buildSlidableItem(_sets[index], index, _locale);
                 },
               ),
             ),
@@ -215,11 +210,12 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               widget.workoutId,
               result['weight'] as double,
               result['repetitions'] as int,
+              _locale,
             );
-            _loadSets();
+            _loadSets(_locale);
           }
         },
-        tooltip: 'Новый подход',
+        tooltip: AppLocalizations.of(context)!.newSet,
         child: const Icon(Icons.add),
       ),
     );

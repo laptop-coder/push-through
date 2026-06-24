@@ -4,8 +4,10 @@ import 'package:push_through/models/workout_type.dart';
 import 'package:push_through/services/workout_service.dart';
 import 'package:push_through/services/workout_type_service.dart';
 import 'package:push_through/screens/workout_screen.dart';
-import 'package:push_through/utils/format_datetime.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:push_through/l10n/app_localizations.dart';
+import 'package:relative_time/relative_time.dart';
+import 'package:intl/intl.dart';
 
 class WorkoutTypeScreen extends StatefulWidget {
   const WorkoutTypeScreen({super.key, required this.workoutTypeId});
@@ -20,8 +22,9 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
   List<Workout> _workouts = [];
   WorkoutType? _workoutType;
   GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  late Locale _locale;
 
-  void _deleteWorkout(int index, Workout workout) async {
+  void _deleteWorkout(int index, Workout workout, Locale locale) async {
     final removedWorkout = _workouts[index];
     _workouts.removeAt(index);
     _listKey.currentState!.removeItem(
@@ -33,7 +36,7 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
         ).animate(CurvedAnimation(parent: animation, curve: Curves.easeIn)),
         child: FadeTransition(
           opacity: animation,
-          child: _buildSlidableItem(removedWorkout, index),
+          child: _buildSlidableItem(removedWorkout, index, locale),
         ),
       ),
       duration: Duration(milliseconds: 300),
@@ -44,7 +47,7 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
     }
   }
 
-  Widget _buildSlidableItem(Workout workout, int index) {
+  Widget _buildSlidableItem(Workout workout, int index, Locale locale) {
     final child = Slidable(
       key: Key(workout.id.toString()),
       endActionPane: ActionPane(
@@ -52,11 +55,11 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
         extentRatio: 0.3,
         children: [
           SlidableAction(
-            onPressed: (context) => _deleteWorkout(index, workout),
+            onPressed: (context) => _deleteWorkout(index, workout, locale),
             backgroundColor: Theme.of(context).colorScheme.error,
             foregroundColor: Theme.of(context).colorScheme.onError,
             icon: Icons.delete,
-            label: 'Удалить',
+            label: AppLocalizations.of(context)!.delete,
             borderRadius: BorderRadius.circular(32),
           ),
         ],
@@ -70,11 +73,15 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
         ),
         child: ListTile(
           visualDensity: VisualDensity(vertical: 2),
-          title: Text(FormatDatetime.formatDate(workout.createdAt)),
+          title: Text(
+            DateFormat.yMd(
+              locale.languageCode,
+            ).format(DateTime.parse(workout.createdAt)),
+          ),
           subtitle: Text(
-            FormatDatetime.formatDateRelativeToToday(
-              DateTime.parse(workout.createdAt.replaceAll(' ', 'T')),
-            ),
+            DateTime.parse(
+              workout.createdAt.replaceAll(' ', 'T'),
+            ).relativeTime(context),
           ),
           onTap: () {
             Navigator.push(
@@ -92,8 +99,9 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
+  didChangeDependencies() {
+    super.didChangeDependencies();
+    _locale = Localizations.localeOf(context);
     _loadData();
   }
 
@@ -143,20 +151,20 @@ class _WorkoutTypeScreenState extends State<WorkoutTypeScreen> {
       body: _loading
           ? Center(child: CircularProgressIndicator())
           : _workouts.isEmpty
-          ? Center(child: Text('Нет тренировок'))
+          ? Center(child: Text(AppLocalizations.of(context)!.noWorkouts))
           : Padding(
               padding: EdgeInsets.only(left: 12, right: 12, top: 12),
               child: AnimatedList(
                 key: _listKey,
                 initialItemCount: _workouts.length,
                 itemBuilder: (context, index, animation) {
-                  return _buildSlidableItem(_workouts[index], index);
+                  return _buildSlidableItem(_workouts[index], index, _locale);
                 },
               ),
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createWorkout,
-        tooltip: 'Новая тренировка',
+        tooltip: AppLocalizations.of(context)!.newWorkout,
         child: const Icon(Icons.add),
       ),
     );

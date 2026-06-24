@@ -1,0 +1,25 @@
+{
+  "appTitleFull": "Дожми! Тренировки",
+  "cancel": "Отмена",
+  "dataImportExport": "Импорт/экспорт данных",
+  "delete": "Удалить",
+  "exerciseName": "Название упражнения",
+  "exportTo": "Экспортировать в",
+  "exportedTo": "Экспортировано в",
+  "importFrom": "Импортировать из",
+  "importedSuccessfully": "Успешно импортировано",
+  "newExercise": "Новое упражнение",
+  "newSet": "Новый подход",
+  "newWorkout": "Новая тренировка",
+  "noExercises": "Нет упражнений",
+  "noSets": "Нет подходов",
+  "noWorkouts": "Нет тренировок",
+  "repetition": "{count, plural, =0{повторений} one{повторение} few{повторения} many{повторений} other{повторений}}",
+  "repetitions": "Повторения",
+  "save": "Сохранить",
+  "set": "подход",
+  "weight": "Вес",
+  "weightUnit": "кг",
+  "workouts": "Тренировки"
+}
+

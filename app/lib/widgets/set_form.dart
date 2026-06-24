@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:push_through/models/set.dart';
+import 'package:push_through/l10n/app_localizations.dart';
 
 class SetForm extends StatefulWidget {
   final Set? set;
@@ -52,7 +53,8 @@ class _SetFormState extends State<SetForm> {
                     controller: _weightController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: 'Вес (кг)',
+                      labelText:
+                          '${AppLocalizations.of(context)!.weight} (${AppLocalizations.of(context)!.weightUnit})',
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -63,7 +65,7 @@ class _SetFormState extends State<SetForm> {
                     controller: _repetitionsController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: 'Повторения',
+                      labelText: AppLocalizations.of(context)!.repetitions,
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -80,7 +82,7 @@ class _SetFormState extends State<SetForm> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: Text('Отмена'),
+                      child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                   ),
                   SizedBox(width: 16),
@@ -98,7 +100,7 @@ class _SetFormState extends State<SetForm> {
                           });
                         }
                       },
-                      child: Text('Сохранить'),
+                      child: Text(AppLocalizations.of(context)!.save),
                     ),
                   ),
                 ],
