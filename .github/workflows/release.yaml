@@ -60,6 +60,14 @@ jobs:
         with:
           channel: stable
 
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/.keystore.jks
+
+      - name: Create key.properties
+        run: |
+          echo "${{ secrets.KEY_PROPERTIES }}" > app/android/key.properties
+
       - name: Set app version (Linux/Windows)
         working-directory: ./app
         if: runner.os != 'macOS'
