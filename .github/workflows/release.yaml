@@ -120,12 +120,12 @@ jobs:
           echo "CODE_X86_64=$CODE_X86_64" >> $GITHUB_ENV
 
           flutter build apk --release --target-platform android-arm64 --build-name=${{ env.VERSION_NAME }} --build-number=$CODE_ARM64
+          mv build/app/outputs/flutter-apk/app-release.apk push_through-${{ env.VERSION_NAME }}+$CODE_ARM64-android-arm64-v8a.apk
           flutter build apk --release --target-platform android-arm --build-name=${{ env.VERSION_NAME }} --build-number=$CODE_ARM32
+          mv build/app/outputs/flutter-apk/app-release.apk push_through-${{ env.VERSION_NAME }}+$CODE_ARM32-android-armeabi-v7a.apk
           flutter build apk --release --target-platform android-x64 --build-name=${{ env.VERSION_NAME }} --build-number=$CODE_X86_64
+          mv build/app/outputs/flutter-apk/app-release.apk push_through-${{ env.VERSION_NAME }}+$CODE_X86_64-android-x86_64.apk
           flutter build appbundle --release
-          mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk push_through-${{ env.VERSION_NAME }}+$CODE_ARM64-android-arm64-v8a.apk
-          mv build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk push_through-${{ env.VERSION_NAME }}+$CODE_ARM32-android-armeabi-v7a.apk
-          mv build/app/outputs/flutter-apk/app-x86_64-release.apk push_through-${{ env.VERSION_NAME }}+$CODE_X86_64-android-x86_64.apk
           mv build/app/outputs/bundle/release/app-release.aab push_through-${{ env.VERSION }}-android.aab
       - name: Upload Android binaries
         if: runner.os == 'Linux'
