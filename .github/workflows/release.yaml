@@ -63,12 +63,14 @@ jobs:
       - name: Decode keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        shell: bash
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > app/.keystore.jks
 
       - name: Create key.properties
         env:
           KEY_PROPERTIES: ${{ secrets.KEY_PROPERTIES }}
+        shell: bash
         run: |
           echo "$KEY_PROPERTIES" > app/android/key.properties
 
