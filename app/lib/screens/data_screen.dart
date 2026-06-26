@@ -15,19 +15,18 @@ class DataScreen extends StatefulWidget {
 }
 
 class _DataScreenState extends State<DataScreen> {
-  Future<String?> _getDownloadsPath() async {
+  Future<Directory> _getDownloadsPath() async {
     Directory? directory;
     if (Platform.isAndroid) {
       directory = Directory('/storage/emulated/0/Downloads');
       if (!await directory.exists()) {
         directory = await getExternalStorageDirectory();
       }
-    } else if (Platform.isIOS) {
-      directory = await getApplicationDocumentsDirectory();
-    } else {
+    } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
       directory = await getDownloadsDirectory();
     }
-    return directory?.path;
+    directory ??= await getApplicationDocumentsDirectory();
+    return directory;
   }
 
   void _exportDBToZip(List<String> tables) async {
