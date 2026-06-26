@@ -1,0 +1,19 @@
+<b>A simple, fast offline workout tracker</b>
+
+<b>
+<i>
+Important: The application is unstable and may contain errors.
+</i>
+</b>
+
+Main Features:
+<ul>
+<li>Adding your own exercises</li>
+<li>Recording sets (weight + repetitions) with reference to the exercise and today's date</li>
+<li>Exporting data to a ZIP archive with CSV files (can be opened in a table and analyzed)</li>
+<li>Importing data from a ZIP archive</li>
+</ul>
+
+All data is stored on the device. The app works offline and requires no permissions.
+
+Also available for PC (see the releases in the GitHub repository).
