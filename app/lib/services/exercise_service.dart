@@ -14,14 +14,15 @@ class ExerciseService {
             'updated_at': updatedAt as String,
             'name': name as String,
           }
-          in await DatabaseService.query(
-            'exercises',
-            orderBy: 'name',
-          ))
+          in await DatabaseService.query('exercises', orderBy: 'name'))
         Exercise(
           id: id,
-          createdAt: createdAt,
-          updatedAt: updatedAt,
+          createdAt: DateTime.parse(
+            '${createdAt.replaceAll(' ', 'T')}Z',
+          ).toLocal().toString(),
+          updatedAt: DateTime.parse(
+            '${updatedAt.replaceAll(' ', 'T')}Z',
+          ).toLocal().toString(),
           name: name,
         ),
     ];
@@ -35,18 +36,18 @@ class ExerciseService {
     );
     return Exercise(
       id: workout[0]['id'] as int,
-      createdAt: workout[0]['created_at'] as String,
-      updatedAt: workout[0]['updated_at'] as String,
+      createdAt: DateTime.parse(
+        '${(workout[0]['created_at'] as String).replaceAll(' ', 'T')}Z',
+      ).toLocal().toString(),
+      updatedAt: DateTime.parse(
+        '${(workout[0]['updated_at'] as String).replaceAll(' ', 'T')}Z',
+      ).toLocal().toString(),
       name: workout[0]['name'] as String,
     );
   }
 
   static Future<void> update(Exercise exercise) async {
-    await DatabaseService.update(
-      'exercises',
-      exercise.toMap(),
-      exercise.id,
-    );
+    await DatabaseService.update('exercises', exercise.toMap(), exercise.id);
   }
 
   static Future<void> delete(int id) async {

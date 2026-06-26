@@ -27,8 +27,12 @@ class SetService {
       for (final map in maps)
         Set(
           id: map['id'] as int,
-          createdAt: map['created_at'] as String,
-          updatedAt: map['updated_at'] as String,
+          createdAt: DateTime.parse(
+            '${(map['created_at'] as String).replaceAll(' ', 'T')}Z',
+          ).toLocal().toString(),
+          updatedAt: DateTime.parse(
+            '${(map['updated_at'] as String).replaceAll(' ', 'T')}Z',
+          ).toLocal().toString(),
           workoutId: map['workout_id'] as int,
           weight: WeightConverter.fromKg(map['weight'] as double, locale),
           repetitions: map['repetitions'] as int,
