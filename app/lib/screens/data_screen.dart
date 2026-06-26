@@ -15,22 +15,10 @@ class DataScreen extends StatefulWidget {
 }
 
 class _DataScreenState extends State<DataScreen> {
-  Future<Directory> _getDownloadsPath() async {
-    Directory? directory;
-    if (Platform.isAndroid) {
-      directory = Directory('/storage/emulated/0/Downloads');
-      if (!await directory.exists()) {
-        directory = await getExternalStorageDirectory();
-      }
-    } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-      directory = await getDownloadsDirectory();
-    }
-    directory ??= await getApplicationDocumentsDirectory();
-    return directory;
-  }
-
   void _exportDBToZip(List<String> tables) async {
-    final dir = await _getDownloadsPath();
+    String? dirPath;
+    dirPath = await FilePicker.getDirectoryPath();
+    dirPath ??= (await getApplicationDocumentsDirectory()).path;
     final encoder = ZipEncoder();
     final archive = Archive();
 
@@ -44,7 +32,7 @@ class _DataScreenState extends State<DataScreen> {
       'yyyy-MM-dd-HH-mm',
     ).format(currentDateTime);
     final pathToZip =
-        '${dir.path}/${currentDateTimeFilenames}_export_push-through.zip';
+        '$dirPath/${currentDateTimeFilenames}_export_push-through.zip';
     final zipFile = File(pathToZip);
 
     await zipFile.writeAsBytes(encoder.encode(archive));

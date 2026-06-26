@@ -60,7 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Material(
         clipBehavior: Clip.antiAlias,
-        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(index == 0 ? 12 : 2),
           bottom: Radius.circular(index == _exercises.length - 1 ? 12 : 2),
@@ -122,10 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
         title: Text(AppLocalizations.of(context)!.appTitleFull),
       ),
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       body: _loading
           ? Center(child: CircularProgressIndicator())
           : _exercises.isEmpty

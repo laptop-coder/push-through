@@ -66,7 +66,6 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
       ),
       child: Material(
         clipBehavior: Clip.antiAlias,
-        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(index == 0 ? 12 : 2),
           bottom: Radius.circular(index == _workouts.length - 1 ? 12 : 2),
@@ -144,10 +143,8 @@ class _ExerciseScreenState extends State<ExerciseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
         title: Text(_exercise != null ? _exercise!.name : ''),
       ),
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       body: _loading
           ? Center(child: CircularProgressIndicator())
           : _workouts.isEmpty

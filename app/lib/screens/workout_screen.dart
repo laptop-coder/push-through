@@ -72,7 +72,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       ),
       child: Material(
         clipBehavior: Clip.antiAlias,
-        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(index == 0 ? 12 : 2),
           bottom: Radius.circular(index == _sets.length - 1 ? 12 : 2),
@@ -175,7 +174,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       appBar: AppBar(
         title: Text(
           _workout != null
