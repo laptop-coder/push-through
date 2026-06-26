@@ -15,8 +15,23 @@ class DataScreen extends StatefulWidget {
 }
 
 class _DataScreenState extends State<DataScreen> {
+  Future<String?> _getDownloadsPath() async {
+    Directory? directory;
+    if (Platform.isAndroid) {
+      directory = Directory('/storage/emulated/0/Downloads');
+      if (!await directory.exists()) {
+        directory = await getExternalStorageDirectory();
+      }
+    } else if (Platform.isIOS) {
+      directory = await getApplicationDocumentsDirectory();
+    } else {
+      directory = await getDownloadsDirectory();
+    }
+    return directory?.path;
+  }
+
   void _exportDBToZip(List<String> tables) async {
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await _getDownloadsPath();
     final encoder = ZipEncoder();
     final archive = Archive();
 
@@ -36,9 +51,13 @@ class _DataScreenState extends State<DataScreen> {
     await zipFile.writeAsBytes(encoder.encode(archive));
 
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('${AppLocalizations.of(context)!.exportedTo} $pathToZip')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${AppLocalizations.of(context)!.exportedTo} $pathToZip',
+          ),
+        ),
+      );
     }
   }
 
@@ -59,9 +78,11 @@ class _DataScreenState extends State<DataScreen> {
     }
 
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.importedSuccessfully)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.importedSuccessfully),
+        ),
+      );
     }
   }
 
@@ -73,8 +94,7 @@ class _DataScreenState extends State<DataScreen> {
         children: [
           FilledButton(
             child: Text('${AppLocalizations.of(context)!.exportTo} ZIP'),
-            onPressed: () =>
-                _exportDBToZip(['exercises', 'workouts', 'sets']),
+            onPressed: () => _exportDBToZip(['exercises', 'workouts', 'sets']),
           ),
           SizedBox(height: 10),
           FilledButton(
