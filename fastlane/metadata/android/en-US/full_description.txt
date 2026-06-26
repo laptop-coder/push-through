@@ -9,8 +9,8 @@ Important: The application is unstable and may contain errors.
 Main Features:
 <ul>
 <li>Adding your own exercises</li>
-<li>Recording sets (weight + repetitions) with reference to the exercise and today's date</li>
-<li>Exporting data to a ZIP archive with CSV files (can be opened in a table and analyzed)</li>
+<li>Recording sets (weight + repetitions) tied to the exercise and today's date</li>
+<li>Exporting data to a ZIP archive with CSV files (can be opened in a spreadsheet and analyzed)</li>
 <li>Importing data from a ZIP archive</li>
 </ul>
 
