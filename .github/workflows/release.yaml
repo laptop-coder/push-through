@@ -47,7 +47,8 @@ jobs:
 
   bump-version:
     name: Bump version in pubspec.yaml
-    if: github.actor != 'github-actions[bot]'
+    needs: release
+    if: github.actor != 'github-actions[bot]' && needs.release.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -60,7 +61,7 @@ jobs:
         working-directory: ./app
         id: calc_and_update
         run: |
-          NEW_VERSION_NAME=$(echo ${{ github.ref_name }} | sed 's/^v//')
+          NEW_VERSION_NAME=$(echo ${{ needs.release.outputs.version }} | sed 's/^v//')
           NEW_VERSION_CODE=$(awk -F '[+]' '/version:/ {print $2 + 1}' ./pubspec.yaml)
           NEW_VERSION=$NEW_VERSION_NAME+$NEW_VERSION_CODE
           sed -i "s/^version: .*/version: $NEW_VERSION/" pubspec.yaml
