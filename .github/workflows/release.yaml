@@ -52,6 +52,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      new_version: ${{ steps.calc_and_update.outputs.new_version }}
+      new_version_name: ${{ steps.calc_and_update.outputs.new_version_name }}
+      new_version_code: ${{ steps.calc_and_update.outputs.new_version_code }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -66,6 +70,9 @@ jobs:
           NEW_VERSION=$NEW_VERSION_NAME+$NEW_VERSION_CODE
           sed -i "s/^version: .*/version: $NEW_VERSION/" pubspec.yaml
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "new_version_name=$NEW_VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "new_version_code=$NEW_VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
       - name: Commit and push changes
         working-directory: ./app
         env:
@@ -79,7 +86,7 @@ jobs:
 
   build-app:
     name: Build App (${{ matrix.os }})
-    needs: release
+    needs: [release, bump-version]
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
@@ -108,36 +115,6 @@ jobs:
         run: |
           echo "$KEY_PROPERTIES" > app/android/key.properties
 
-      - name: Set app version (Linux/Windows)
-        working-directory: ./app
-        if: runner.os != 'macOS'
-        shell: bash
-        run: |
-          VERSION=$(echo "${{ needs.release.outputs.version }}" | sed 's/^v//' | sed 's/[+-].*//')
-          echo "VERSION_NAME=$VERSION" >> $GITHUB_ENV
-          MAJOR=$(echo $VERSION | cut -d '.' -f1)
-          MINOR=$(echo $VERSION | cut -d '.' -f2)
-          PATCH=$(echo $VERSION | cut -d '.' -f3)
-          VERSION_CODE=$((MAJOR * 100000000 + MINOR * 10000 + PATCH))
-          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
-          VERSION="$VERSION+$VERSION_CODE"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          sed -i "s/^version: .*/version: $VERSION/" pubspec.yaml
-      - name: Set app version (macOS)
-        working-directory: ./app
-        if: runner.os == 'macOS'
-        run: |
-          VERSION=$(echo "${{ needs.release.outputs.version }}" | sed 's/^v//' | sed 's/[+-].*//')
-          echo "VERSION_NAME=$VERSION" >> $GITHUB_ENV
-          MAJOR=$(echo $VERSION | cut -d '.' -f1)
-          MINOR=$(echo $VERSION | cut -d '.' -f2)
-          PATCH=$(echo $VERSION | cut -d '.' -f3)
-          VERSION_CODE=$((MAJOR * 100000000 + MINOR * 10000 + PATCH))
-          echo "VERSION_CODE=$VERSION_CODE" >> $GITHUB_ENV
-          VERSION="$VERSION+$VERSION_CODE"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          sed -i '' "s/^version: .*/version: $VERSION/" pubspec.yaml
-
       - name: Get Flutter packages
         working-directory: ./app
         shell: bash
@@ -147,32 +124,32 @@ jobs:
         working-directory: ./app
         if: runner.os == 'Linux'
         run: |
-          CODE_ARM64=$((${{ env.VERSION_CODE }} * 10 + 1))
-          CODE_ARM32=$((${{ env.VERSION_CODE }} * 10 + 2))
-          CODE_X86_64=$((${{ env.VERSION_CODE }} * 10 + 3))
+          CODE_ARM64=$((${{ needs.bump-version.outputs.new_version_code }} * 10 + 1))
+          CODE_ARM32=$((${{ needs.bump-version.outputs.new_version_code }} * 10 + 2))
+          CODE_X86_64=$((${{ needs.bump-version.outputs.new_version_code }} * 10 + 3))
 
           echo "CODE_ARM64=$CODE_ARM64" >> $GITHUB_ENV
           echo "CODE_ARM32=$CODE_ARM32" >> $GITHUB_ENV
           echo "CODE_X86_64=$CODE_X86_64" >> $GITHUB_ENV
 
-          flutter build apk --release --target-platform android-arm64 --build-name=${{ env.VERSION_NAME }} --build-number=$CODE_ARM64
-          mv build/app/outputs/flutter-apk/app-release.apk push_through-${{ env.VERSION_NAME }}+$CODE_ARM64-android-arm64-v8a.apk
-          flutter build apk --release --target-platform android-arm --build-name=${{ env.VERSION_NAME }} --build-number=$CODE_ARM32
-          mv build/app/outputs/flutter-apk/app-release.apk push_through-${{ env.VERSION_NAME }}+$CODE_ARM32-android-armeabi-v7a.apk
-          flutter build apk --release --target-platform android-x64 --build-name=${{ env.VERSION_NAME }} --build-number=$CODE_X86_64
-          mv build/app/outputs/flutter-apk/app-release.apk push_through-${{ env.VERSION_NAME }}+$CODE_X86_64-android-x86_64.apk
+          flutter build apk --release --target-platform android-arm64 --build-name=${{ needs.bump-version.outputs.new_version_name }} --build-number=$CODE_ARM64
+          mv build/app/outputs/flutter-apk/app-release.apk push_through-${{ needs.bump-version.outputs.new_version_name }}+$CODE_ARM64-android-arm64-v8a.apk
+          flutter build apk --release --target-platform android-arm --build-name=${{ needs.bump-version.outputs.new_version_name }} --build-number=$CODE_ARM32
+          mv build/app/outputs/flutter-apk/app-release.apk push_through-${{ needs.bump-version.outputs.new_version_name }}+$CODE_ARM32-android-armeabi-v7a.apk
+          flutter build apk --release --target-platform android-x64 --build-name=${{ needs.bump-version.outputs.new_version_name }} --build-number=$CODE_X86_64
+          mv build/app/outputs/flutter-apk/app-release.apk push_through-${{ needs.bump-version.outputs.new_version_name }}+$CODE_X86_64-android-x86_64.apk
           flutter build appbundle --release
-          mv build/app/outputs/bundle/release/app-release.aab push_through-${{ env.VERSION }}-android.aab
+          mv build/app/outputs/bundle/release/app-release.aab push_through-${{ needs.bump-version.outputs.new_version }}-android.aab
       - name: Upload Android binaries
         if: runner.os == 'Linux'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release.outputs.version }}
           files: |
-            app/push_through-${{ env.VERSION_NAME }}+${{ env.CODE_ARM64 }}-android-arm64-v8a.apk
-            app/push_through-${{ env.VERSION_NAME }}+${{ env.CODE_ARM32 }}-android-armeabi-v7a.apk
-            app/push_through-${{ env.VERSION_NAME }}+${{ env.CODE_X86_64 }}-android-x86_64.apk
-            app/push_through-${{ env.VERSION }}-android.aab
+            app/push_through-${{ needs.bump-version.outputs.new_version_name }}+${{ env.CODE_ARM64 }}-android-arm64-v8a.apk
+            app/push_through-${{ needs.bump-version.outputs.new_version_name }}+${{ env.CODE_ARM32 }}-android-armeabi-v7a.apk
+            app/push_through-${{ needs.bump-version.outputs.new_version_name }}+${{ env.CODE_X86_64 }}-android-x86_64.apk
+            app/push_through-${{ needs.bump-version.outputs.new_version }}-android.aab
           overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -180,19 +157,19 @@ jobs:
       - name: Build for iOS
         working-directory: ./app
         if: runner.os == 'macOS'
-        run: flutter build ios --release --no-codesign --build-name=${{ env.VERSION_NAME }} --build-number=${{ env.VERSION_CODE }}
+        run: flutter build ios --release --no-codesign --build-name=${{ needs.bump-version.outputs.new_version_name }} --build-number=${{ needs.bump-version.outputs.new_version_code }}
       - name: Zip iOS binaries
         if: runner.os == 'macOS'
         working-directory: ./app
         run: |
           cd build/ios/iphoneos/Runner.app
-          zip -r ../../../../push_through-${{ env.VERSION }}-ios.zip *
+          zip -r ../../../../push_through-${{ needs.bump-version.outputs.new_version }}-ios.zip *
       - name: Upload iOS binaries
         if: runner.os == 'macOS'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release.outputs.version }}
-          files: app/push_through-${{ env.VERSION }}-ios.zip
+          files: app/push_through-${{ needs.bump-version.outputs.new_version }}-ios.zip
           overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -209,13 +186,13 @@ jobs:
         working-directory: ./app
         run: |
           cd build/linux/x64/release/bundle
-          zip -r ../../../../../push_through-${{ needs.release.outputs.version }}-linux-x86_64-portable.zip *
+          zip -r ../../../../../push_through-${{ needs.bump-version.outputs.new_version_name }}-linux-x86_64-portable.zip *
       - name: Upload Linux binaries
         if: runner.os == 'Linux'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release.outputs.version }}
-          files: app/push_through-${{ needs.release.outputs.version }}-linux-x86_64-portable.zip
+          files: app/push_through-${{ needs.bump-version.outputs.new_version_name }}-linux-x86_64-portable.zip
           overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -229,13 +206,13 @@ jobs:
         if: runner.os == 'Windows'
         working-directory: ./app
         shell: pwsh
-        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath push_through-${{ needs.release.outputs.version }}-windows-x86_64-portable.zip
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath push_through-${{ needs.bump-version.outputs.new_version_name }}-windows-x86_64-portable.zip
       - name: Upload Windows binaries
         if: runner.os == 'Windows'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release.outputs.version }}
-          files: app/push_through-${{ needs.release.outputs.version }}-windows-x86_64-portable.zip
+          files: app/push_through-${{ needs.bump-version.outputs.new_version_name }}-windows-x86_64-portable.zip
           overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -249,13 +226,13 @@ jobs:
         working-directory: ./app
         run: |
           cd build/macos/Build/Products/Release/push_through.app/
-          zip -r ../../../../../../push_through-${{ needs.release.outputs.version }}-macos-x86_64.zip *
+          zip -r ../../../../../../push_through-${{ needs.bump-version.outputs.new_version_name }}-macos-x86_64.zip *
       - name: Upload macOS binaries
         if: runner.os == 'macOS'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.release.outputs.version }}
-          files: app/push_through-${{ needs.release.outputs.version }}-macos-x86_64.zip
+          files: app/push_through-${{ needs.bump-version.outputs.new_version_name }}-macos-x86_64.zip
           overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
