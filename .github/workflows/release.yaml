@@ -65,7 +65,7 @@ jobs:
           NEW_VERSION_CODE=$(awk -F '[+]' '/version:/ {print $2 + 1}' ./pubspec.yaml)
           NEW_VERSION=$NEW_VERSION_NAME+$NEW_VERSION_CODE
           sed -i "s/^version: .*/version: $NEW_VERSION/" pubspec.yaml
-          echo "new_version=$NEW_VERSION" >> GITHUB_OUTPUT
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
       - name: Commit and push changes
         working-directory: ./app
         env:
