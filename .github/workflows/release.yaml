@@ -10,6 +10,7 @@ permissions:
 jobs:
   release:
     name: Release
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -49,7 +50,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
-    if: needs.release.result == 'success'
+    if: github.actor != 'github-actions[bot]' && needs.release.result == 'success'
     strategy:
       fail-fast: false
       matrix:
